@@ -1,0 +1,44 @@
+@baseUrl = http://localhost:8000
+
+### Get all posts
+GET {{baseUrl}}/post
+
+### Create a new post
+POST {{baseUrl}}/post
+Content-Type: application/json
+
+{
+  "title": "Testing from REST Client",
+  "body": "This post was created via client.rest"
+}
+
+### Get a single post by id
+GET {{baseUrl}}/post/1
+
+### Get a post that doesn't exist (expect 404)
+GET {{baseUrl}}/post/9999
+
+### Update a post by id
+PUT {{baseUrl}}/post/1
+Content-Type: application/json
+
+{
+  "title": "Updated Title",
+  "body": "Updated body content"
+}
+
+### Update a post that doesn't exist (expect 404)
+PUT {{baseUrl}}/post/9999
+Content-Type: application/json
+
+{
+  "title": "Ghost Post",
+  "body": "Should not work"
+}
+
+### Delete a post by id (expect 204, no body)
+DELETE {{baseUrl}}/post/1
+
+### Delete a post that doesn't exist (expect 404)
+DELETE {{baseUrl}}/post/9999
+
