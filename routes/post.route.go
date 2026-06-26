@@ -1,19 +1,17 @@
 package routes
 
 import (
-	"github.com/gorilla/mux"
-
 	"udemygo/services"
+
+	"github.com/gorilla/mux"
 )
 
-func CreateRouter() *mux.Router {
-	router := mux.NewRouter()
+func PostRouter(res *mux.Router) {
+	posts := res.PathPrefix("/posts").Subrouter()
 
-	router.HandleFunc("/post", services.GetAllPosts).Methods("GET")
-	router.HandleFunc("/post", services.CreatePost).Methods("POST")
-	router.HandleFunc("/post/{id}", services.GetPost).Methods("GET")
-	router.HandleFunc("/post/{id}", services.UpdatePost).Methods("PUT")
-	router.HandleFunc("/post/{id}", services.DeletePost).Methods("DELETE")
-
-	return router
+	posts.HandleFunc("", services.GetAllPosts).Methods("GET")
+	posts.HandleFunc("", services.CreatePost).Methods("POST")
+	posts.HandleFunc("/{id}", services.GetPost).Methods("GET")
+	posts.HandleFunc("/{id}", services.UpdatePost).Methods("PUT")
+	posts.HandleFunc("/{id}", services.DeletePost).Methods("DELETE")
 }
