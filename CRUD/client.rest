@@ -1,0 +1,72 @@
+### Variables (optional)
+@baseUrl = http://localhost:3000/api/v1
+@contentType = application/json
+
+### GET all posts
+GET {{baseUrl}}/posts
+Accept: application/json
+
+###
+
+### GET a specific post by ID (replace 1 with actual ID)
+GET {{baseUrl}}/posts/1
+Accept: application/json
+
+###
+
+### CREATE a new post
+POST {{baseUrl}}/posts
+Content-Type: {{contentType}}
+
+{
+    "title": "My First Post",
+    "content": "This is the content of my first post."
+}
+
+###
+
+### CREATE another post
+POST {{baseUrl}}/posts
+Content-Type: {{contentType}}
+
+{
+    "title": "Learning Go and Docker",
+    "content": "Today I learned how to set up PostgreSQL in Docker and connect it to Go."
+}
+
+###
+
+### CREATE a post with all fields
+POST {{baseUrl}}/posts
+Content-Type: {{contentType}}
+
+{
+    "title": "Advanced REST API",
+    "content": "This post demonstrates a complete REST API with CRUD operations.",
+    "author": "John Doe",
+    "tags": ["go", "docker", "postgres"]
+}
+
+###
+
+### UPDATE a post (replace 1 with actual ID)
+PUT {{baseUrl}}/posts/1
+Content-Type: {{contentType}}
+
+{
+    "title": "Updated Post Title",
+    "content": "This is the updated content of the post."
+}
+
+###
+
+### DELETE a post (replace 1 with actual ID)
+DELETE {{baseUrl}}/posts/1
+
+###
+
+### GET posts with query parameters
+GET {{baseUrl}}/posts?limit=5&offset=0
+Accept: application/json
+
+###
