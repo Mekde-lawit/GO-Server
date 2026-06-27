@@ -12,6 +12,9 @@ func SetupPostRoutes(router *gin.RouterGroup) {
 	{
 		public.GET("/", controllers.GetPosts)
 		public.POST("/", controllers.CreatePosts)
+		public.GET("/:id", controllers.GetPost)
+		public.PUT("/:id", controllers.UpdatePost)
+		public.DELETE("/:id", controllers.DeletePost)
 		// public.GET("/:id", controllers.GetPost)
 		// public.GET("/search", controllers.SearchPosts)
 		// public.GET("/tags/:tag", controllers.GetPostsByTag)
