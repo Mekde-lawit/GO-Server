@@ -1,0 +1,62 @@
+func GenerateJWT(user models.User) (string, error) {
+	secretKey := os.Getenv("JWT_SECRET")
+	if secretKey == "" {
+		return "", errors.New("JWT_SECRET environment variable is not set")
+	}
+ 
+	now := time.Now()
+	claims := jwt.MapClaims{
+		"user_id": user.ID,
+		"role":    user.Role,
+		"exp":     now.Add(24 * time.Hour).Unix(), // expiresAt
+		"iat":     now.Unix(),                      // issuedAt
+		"iss":     "auth-service",                  // issuer
+	}
+ 
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+ 
+	signed, err := token.SignedString([]byte(secretKey))
+	if err != nil {
+		return "", err
+	}
+ 
+	return signed, nil
+}
+
+/////////////////////////////
+func SetAuthCookie(w http.ResponseWriter, token string) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     authCookieName,
+		Value:    token,
+		Path:     "/",
+		MaxAge:   24 * 60 * 60, // matches the 24h token expiry in GenerateJWT
+		HttpOnly: true,         // not accessible via JS — mitigates XSS
+		Secure:   true,         // only sent over HTTPS
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+ 
+// ClearAuthCookie removes the auth cookie, e.g. on logout.
+func ClearAuthCookie(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     authCookieName,
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
+//////////////////////////////
+if r.Header.Get("X-Client-Type") == "browser" {
+		SetAuthCookie(w, token)
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+ 
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(loginResponse{Token: token}); err != nil {
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+	}

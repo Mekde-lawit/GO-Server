@@ -9,20 +9,20 @@ import (
 	"gorm.io/gorm"
 )
 
-// const (
-// 	host     = "localhost"
-// 	port     = "5432"
-// 	user     = "postgres"
-// 	password = "pass1234"
-// 	dbname   = "postgres"
-// )
 const (
 	host     = "localhost"
-	port     = "5433"
+	port     = "5432"
 	user     = "postgres"
-	password = "123456"
-	dbname   = "crud"
+	password = "pass1234"
+	dbname   = "postgres"
 )
+// const (
+// 	host     = "localhost"
+// 	port     = "5433"
+// 	user     = "postgres"
+// 	password = "123456"
+// 	dbname   = "crud"
+// )
 
 var db *gorm.DB
 

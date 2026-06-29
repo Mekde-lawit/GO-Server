@@ -11,6 +11,6 @@ func AuthRouter(req *mux.Router) {
 	auth.HandleFunc("/login", services.Login).Methods("POST")
 	auth.HandleFunc("/register", services.Register).Methods("POST")
 	auth.HandleFunc("/logout", services.Logout).Methods("POST")
-	auth.HandleFunc("/protected", services.Protected).Methods("GET")
+	auth.HandleFunc("/me", services.me).Methods("GET")
 
 }
