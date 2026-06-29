@@ -1,0 +1,79 @@
+@baseUrl = http://localhost:5959/api/auth
+@contentType = application/json
+
+
+### CREATE a new user
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "password": "securepassword"
+}
+
+###
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "password": "securepassword"
+}
+
+###
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+    "name": "Selam John",
+    "email": "selam.john@example.com",
+    "password": "securepassword"
+}
+###
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+    "name": "new new User",
+    "email": "new.new.user@example.com",
+    "password": "securepassword"
+}
+
+###
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+       "email": "selam.john@example.com",
+    "password": "securepassword"
+}
+
+###
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+    "email": "new.new.user@example.com",
+    "password": "securepassword"
+}
+
+###
+POST {{baseUrl}}/register
+Content-Type: {{contentType}}
+
+{
+    "name":"for testing",
+    "email": "test.user@example.com",
+    "password": "securepassword"
+}
+
+###
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+    "email": "test.user@example.com",
+    "password": "securepassword"
+}

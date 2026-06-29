@@ -1,33 +1,55 @@
-package utils 
+package utils
 
 import (
 	"fmt"
 
+	"auth/models"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-
-	"auth/models"
 )
 
+// const (
+// 	host     = "localhost"
+// 	port     = "5432"
+// 	user     = "postgres"
+// 	password = "pass1234"
+// 	dbname   = "postgres"
+// )
 const (
 	host     = "localhost"
-	port     = "5432"
+	port     = "5433"
 	user     = "postgres"
-	password = "pass1234"
-	dbname   = "postgres"
+	password = "123456"
+	dbname   = "crud"
 )
 
+var db *gorm.DB
 
-func GetConnection() *gorm.DB{
+func InitDB() error {
 	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname,
 	)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	
+	var err error
+	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic(err)
+		return err
 	}
-	db.AutoMigrate(&models.User{})
 
+	err = db.AutoMigrate(&models.User{})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetDB simply returns the already initialized connection pool
+func GetDB() *gorm.DB {
+	if db == nil {
+		panic("Database not initialized! Call InitDB first.")
+	}
 	return db
 }
