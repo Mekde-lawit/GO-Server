@@ -166,3 +166,22 @@ func Me(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(response)
 }
+
+
+
+
+Approach 1: Fetching from the Database in Middleware (What you just did)
+This is called a stateful check.
+
+Pros: Highly secure and accurate. If a user is banned, changes their password, or has their role updated, the changes take effect instantly. Their old token will fail immediately because you are checking the live database on every request.
+
+Cons: It introduces a database query (SELECT * FROM users WHERE id = ...) on every single API request that hits an authenticated route. At high traffic volumes, this can thrash your database and slow down your API response times.
+
+Professional Optimization: To make this approach production-ready at scale, developers typically cache the user object in Redis with a short expiration time (e.g., 5 minutes). The middleware checks Redis first, and only hits the main database if the cache has expired.
+
+Approach 2: Relying purely on JWT Claims
+This is called a stateless check. Instead of looking up the database, you trust the data baked directly into the token.
+
+Pros: Blazing fast. The middleware only decrypts and validates the cryptographically signed string. No database hits, no network latency.
+
+Cons: Stale data. If a user's role changes from "user" to "admin", or if they are banned, they will remain authenticated with their old privileges until their JWT expires (which could be hours or days later).
