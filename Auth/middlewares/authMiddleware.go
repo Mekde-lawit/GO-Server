@@ -17,9 +17,6 @@ var (
 	ErrMissingSecretKey = errors.New("JWT_SECRET environment variable is not set")
 )
 
-
-var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
-
 // extractToken reads the token from the Authorization header or cookie.
 func extractToken(r *http.Request) (string, error) {
 	if h := r.Header.Get("Authorization"); h != "" {
@@ -34,17 +31,18 @@ func extractToken(r *http.Request) (string, error) {
 	if err != nil {
 		return "", ErrNoToken
 	}
+	println(cookie.Value)
 	return cookie.Value, nil
 }
 
 func parseAndValidate(tokenString string) (jwt.MapClaims, error) {
+	jwtSecret := []byte(os.Getenv("JWT_SECRET"))
 	if tokenString == "" {
 		return nil, ErrNoToken
 	}
 	if len(jwtSecret) == 0 {
 		return nil, ErrMissingSecretKey
 	}
-
 	token, err := jwt.Parse(
 		tokenString,
 		func(t *jwt.Token) (interface{}, error) {
@@ -65,15 +63,14 @@ func parseAndValidate(tokenString string) (jwt.MapClaims, error) {
 	return claims, nil
 }
 
-
 func writeAuthError(w http.ResponseWriter, err error) {
 	switch {
 	case errors.Is(err, ErrMissingSecretKey):
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 	case errors.Is(err, ErrNoToken), errors.Is(err, ErrMalformedHeader), errors.Is(err, ErrInvalidToken):
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, "unauthorized:" + err.Error(), http.StatusUnauthorized)
 	default:
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, "unauthorized: "+ err.Error(), http.StatusUnauthorized)
 	}
 }
 
@@ -93,13 +90,11 @@ func Auth(next http.Handler) http.Handler {
 			writeAuthError(w, err)
 			return
 		}
-
 		claims, err := parseAndValidate(tokenString)
 		if err != nil {
 			writeAuthError(w, err)
 			return
 		}
-
 		ctx := context.WithValue(r.Context(), claimsContextKey{}, claims)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

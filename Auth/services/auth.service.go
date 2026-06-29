@@ -82,9 +82,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "All Fields Are Required", http.StatusBadRequest)
 		return
 	}
-
-	DB = utils.GetDB()
-
 	var existingUser models.User
 	result := DB.Where("email = ?", user.Email).First(&existingUser)
 
@@ -108,20 +105,23 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func Logout(w http.ResponseWriter, r *http.Request) {}
+func Logout(w http.ResponseWriter, r *http.Request) {
 
-func me(w http.ResponseWriter, r *http.Request) {
+}
+
+func Me(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	claims, ok := middlewares.ClaimsFromContext(r.Context())
 	if !ok {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-
-	userID, ok := claims["user_id"].(uint)
+	uid, ok := claims["user_id"].(float64)
 	if !ok {
 		http.Error(w, "invalid token claims", http.StatusUnauthorized)
 		return
 	}
+	userID := uint(uid)
 
 	role, ok := claims["role"].(string)
 	if !ok {
