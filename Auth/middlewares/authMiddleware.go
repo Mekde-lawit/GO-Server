@@ -3,6 +3,7 @@ package middlewares
 import (
 	"context"
 	"errors"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -31,7 +32,6 @@ func extractToken(r *http.Request) (string, error) {
 	if err != nil {
 		return "", ErrNoToken
 	}
-	println(cookie.Value)
 	return cookie.Value, nil
 }
 
@@ -66,11 +66,14 @@ func parseAndValidate(tokenString string) (jwt.MapClaims, error) {
 func writeAuthError(w http.ResponseWriter, err error) {
 	switch {
 	case errors.Is(err, ErrMissingSecretKey):
+		log.Printf("auth error: %v", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 	case errors.Is(err, ErrNoToken), errors.Is(err, ErrMalformedHeader), errors.Is(err, ErrInvalidToken):
-		http.Error(w, "unauthorized:" + err.Error(), http.StatusUnauthorized)
+		log.Printf("auth error: %v", err)
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
 	default:
-		http.Error(w, "unauthorized: "+ err.Error(), http.StatusUnauthorized)
+		log.Printf("auth error: %v", err)
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
 	}
 }
 
