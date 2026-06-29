@@ -60,3 +60,109 @@ if r.Header.Get("X-Client-Type") == "browser" {
 	if err := json.NewEncoder(w).Encode(loginResponse{Token: token}); err != nil {
 		http.Error(w, "failed to encode response", http.StatusInternalServerError)
 	}
+
+	////////////////////////////////////////////////////////////
+
+	package middlewares
+
+import (
+	"context"
+	"errors"
+	"net/http"
+	"os"
+	"strings"
+
+	"auth/models" // Adjust this to match your models package path
+
+	"github.com/golang-jwt/jwt/v5"
+)
+
+type contextKey string
+const UserContextKey contextKey = "user"
+
+// ... keep your existing extractToken and parseAndValidate functions here ...
+
+// UserFromContext pulls the fully populated User struct out of the request context
+func UserFromContext(ctx context.Context) (models.User, bool) {
+	user, ok := ctx.Value(UserContextKey).(models.User)
+	return user, ok
+}
+
+// Pass a user retrieval function or your DB instance here so the middleware can talk to the DB
+func Auth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		tokenString, err := extractToken(r)
+		if err != nil {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		claims, err := parseAndValidate(tokenString)
+		if err != nil {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// 1. Extract the user ID from claims
+		uidFloat, ok := claims["user_id"].(float64)
+		if !ok {
+			http.Error(w, "unauthorized: invalid claims", http.StatusUnauthorized)
+			return
+		}
+		userID := uint(uidFloat)
+
+		// 2. Fetch the full user from your database
+		// Replace 'services.FindUserByID' with whatever your database fetch method is
+		user, err := services.FindUserByID(userID) 
+		if err != nil {
+			// If the user was deleted from DB but still has a valid token
+			http.Error(w, "unauthorized: user not found", http.StatusUnauthorized)
+			return
+		}
+
+		// 3. Attach the actual User struct directly to the context
+		ctx := context.WithValue(r.Context(), UserContextKey, user)
+		
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+package services
+
+import (
+	"encoding/json"
+	"log"
+	"net/http"
+	
+	"auth/middlewares"
+)
+
+func Me(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// 1. Grab the attached user object directly from the context
+	user, ok := middlewares.UserFromContext(r.Context())
+	if !ok {
+		log.Println("Middleware failed to attach user object")
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// 2. Return the user directly
+	w.WriteHeader(http.StatusOK)
+	
+	// Tip: Use a specific response struct if you want to hide the password hash!
+	response := struct {
+		ID    uint   `json:"id"`
+		Email string `json:"email"`
+		Role  string `json:"role"`
+	}{
+		ID:    user.ID,
+		Email: user.Email,
+		Role:  user.Role,
+	}
+
+	json.NewEncoder(w).Encode(response)
+}

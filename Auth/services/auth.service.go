@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 
 	"auth/middlewares"
@@ -112,16 +113,17 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 func Me(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	claims, ok := middlewares.ClaimsFromContext(r.Context())
+	log.Println(claims)
 	if !ok {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 	uid, ok := claims["user_id"].(float64)
-	if !ok {
-		http.Error(w, "invalid token claims", http.StatusUnauthorized)
-		return
-	}
-	userID := uint(uid)
+if !ok {
+	http.Error(w, "invalid token claims", http.StatusUnauthorized)
+	return
+}
+userID := uint(uid)
 
 	role, ok := claims["role"].(string)
 	if !ok {
@@ -136,3 +138,5 @@ func Me(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(response)
 }
+
+
