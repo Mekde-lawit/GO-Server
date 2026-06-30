@@ -1,2 +1,6 @@
 go get go.mongodb.org/mongo-driver/v2/mongo
 go get go.mongodb.org/mongo-driver/v2/bson
+import "github.com/gin-gonic/gin"
+go get github.com/joho/godotenv
+
+go get golang.org/x/crypto/bcrypt
