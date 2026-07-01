@@ -2,7 +2,6 @@ package routes
 
 import (
 	controller "jwt/controllers"
-	middleware "jwt/middlewares"
 
 	"github.com/gin-gonic/gin"
 )

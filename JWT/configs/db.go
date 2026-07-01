@@ -13,6 +13,7 @@ import (
 
 func DBinstance() *mongo.Client {
 	mongoDB := os.Getenv("MONGODB_URL")
+	fmt.Println("MongoDB URL:", mongoDB)
 
 	client, err := mongo.Connect(options.Client().ApplyURI(mongoDB))
 	if err != nil {

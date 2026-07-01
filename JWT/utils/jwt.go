@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -54,4 +55,21 @@ func GenerateAllTokens(
 		return
 	}
 	return accessToken, refreshToken, err
+}
+
+func ValidateToken(signedToken string) (claims *SignedDetails, err error) {
+	token, err := jwt.ParseWithClaims(
+		signedToken,
+		&SignedDetails{},
+		func(token *jwt.Token) (interface{}, error) {
+			return jwtSecret, nil
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	if claims, ok := token.Claims.(*SignedDetails); ok {
+		return claims, nil
+	}
+	return nil, fmt.Errorf("invalid claims")
 }

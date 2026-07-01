@@ -20,3 +20,8 @@ type User struct {
 	Created_At    time.Time     `bson:"created_at"`
 	Updated_At    time.Time     `bson:"updated_at"`
 }
+
+type LoginRequest struct {
+    Email    string `json:"email" validate:"required,email"`
+    Password string `json:"password" validate:"required"`
+}

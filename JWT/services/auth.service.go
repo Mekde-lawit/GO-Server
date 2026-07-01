@@ -76,20 +76,33 @@ func CreateUser(user models.User) (*models.User, error) {
  
 }
 
-func LoginUser(user models.User) (*models.User, error) {
-	if err := validate.Struct(user); err != nil {
+func LoginUser(loginRequest models.LoginRequest) (*models.User, error) {
+	if err := validate.Struct(loginRequest); err != nil {
 		return nil, err
 	}
-existUser, err := repository.GetUserByEmail(*user.Email)
+user, err := repository.GetUserByEmail(loginRequest.Email)
 if err != nil {
 	return nil, err
 }
 
-verifypass := verifyPassword(*existUser.Password, *user.Password)
+verifypass := verifyPassword(*user.Password, loginRequest.Password)
 if verifypass != nil {
 	return nil, errors.New("invalid password")
 }
 
-return existUser, nil
+token, refreshToken, err := utils.GenerateAllTokens(*user.Email, *user.First_Name, *user.Last_Name, user.User_Type, user.User_ID)
+	if err != nil {
+		return nil, err
+	}
+	user.Token = &token
+	user.Refresh_Token = &refreshToken
+
+	err = repository.UpdateAllToken(
+    user.User_ID,
+	token,
+    refreshToken,
+)
+
+return user, nil
 }
 	

@@ -87,3 +87,22 @@ func GetUserByEmail(email string) (*models.User, error) {
 	}
 	return &user, nil
 }
+
+func UpdateAllToken(userID, token, refreshToken string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	updated_at, _ := time.Parse(time.Now().Format(time.RFC3339), time.RFC3339)
+
+		_, err := userCollection.UpdateOne(
+		ctx,
+		bson.M{"user_id": userID},
+		bson.M{"$set": bson.M{"token": token, "refresh_token": refreshToken, "updated_at": updated_at}},
+	)
+	if err != nil {
+		return err
+	}
+
+
+	return nil
+}
