@@ -50,11 +50,20 @@ func CreateUser(user models.User) (*models.User, error) {
 		return nil, err
 	}
 	user.Password = &hashedPassword
-	user.Created_At, _ = time.Parse(time.Now().Format(time.RFC3339), time.RFC3339)	
-	user.Updated_At, _ = time.Parse(time.Now().Format(time.RFC3339), time.RFC3339)
+	user.Created_At, err = time.Parse(time.Now().Format(time.RFC3339), time.RFC3339)
+	if err != nil {
+		return nil, err
+	}
+	user.Updated_At, err = time.Parse(time.Now().Format(time.RFC3339), time.RFC3339)
+	if err != nil {
+		return nil, err
+	}
 	user.ID = bson.NewObjectID()
 	user.User_ID = user.ID.Hex()
-	token, refreshToken, _ := utils.GenerateAllTokens(*user.Email, *user.First_Name, *user.Last_Name, user.User_Type, user.User_ID)
+	token, refreshToken, err := utils.GenerateAllTokens(*user.Email, *user.First_Name, *user.Last_Name, user.User_Type, user.User_ID)
+	if err != nil {
+		return nil, err
+	}
 	user.Token = &token
 	user.Refresh_Token = &refreshToken
 
@@ -66,3 +75,21 @@ func CreateUser(user models.User) (*models.User, error) {
 	return result, nil
  
 }
+
+func LoginUser(user models.User) (*models.User, error) {
+	if err := validate.Struct(user); err != nil {
+		return nil, err
+	}
+existUser, err := repository.GetUserByEmail(*user.Email)
+if err != nil {
+	return nil, err
+}
+
+verifypass := verifyPassword(*existUser.Password, *user.Password)
+if verifypass != nil {
+	return nil, errors.New("invalid password")
+}
+
+return existUser, nil
+}
+	
