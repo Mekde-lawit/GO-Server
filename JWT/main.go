@@ -11,6 +11,7 @@ import (
 
 func init() {
 	configs.InitEnv()
+	configs.DBinstance()
 }
 
 func main() {

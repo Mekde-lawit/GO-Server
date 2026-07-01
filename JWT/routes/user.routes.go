@@ -10,6 +10,6 @@ import (
 func AuthRoutes(router *gin.Engine) {
 router.Use(middleware.Authenticate)
 
-router.GET("/users", controller.GetUsers)
-router.GET("/user/:user_id", controller.GetUser)
+router.GET("/users", controller.GetUsers())
+router.GET("/user/:user_id", controller.GetUser())
 }

@@ -1,19 +1,37 @@
 package controllers
 
 import (
-	"jwt/configs"
+	"jwt/models"
+	service "jwt/services"
+	"net/http"
 
-	"github.com/go-playground/validator/v10"
-	"go.mongodb.org/mongo-driver/v2/mongo"
+	"github.com/gin-gonic/gin"
 )
-
-var userCollection *mongo.Collection = configs.OpenCollection(configs.DBinstance(), "users")
-var validate = validator.New()
 
 func Login() {
 
 }
 
-func Signup() {
+func Signup()  gin.HandlerFunc{
+return func (c *gin.Context) {
+	
+ var user models.User
 
+		if err := c.ShouldBindJSON(&user); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		result, err := service.CreateUser(user)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusCreated, result)
+}
 }

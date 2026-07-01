@@ -14,7 +14,7 @@ type User struct {
 	Email         *string       `bson:"email" validate:"required,email"`
 	Password      *string       `bson:"password" validate:"required,min=6"`
 	Phone         *string       `bson:"phone" validate:"required"`
-	User_Type     *string       `bson:"user_type" validate:"required,eq=ADMIN|eq=USER"`
+	User_Type     *string       `bson:"user_type" validate:"required,oneof=ADMIN USER"`
 	Token         *string       `bson:"token"`
 	Refresh_Token *string       `bson:"refresh_token"`
 	Created_At    time.Time     `bson:"created_at"`

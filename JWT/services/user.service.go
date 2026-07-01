@@ -2,6 +2,9 @@ package services
 
 import (
 	"errors"
+	
+	"jwt/models"
+	repository "jwt/repositories"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,4 +31,21 @@ func MatchUserTypeToUid(c *gin.Context, userID string) (err error) {
 	}
 	err = CheckUserType(c, userType)
 	return err
+}
+
+func GetUserByID(c *gin.Context, id string) (*models.User, error) {
+
+    if err := MatchUserTypeToUid(c, id); err != nil {
+        return nil, err
+    }
+
+    return repository.GetUserByID(id)
+}
+
+func GetAllUsers(c *gin.Context) ([]*models.User, error) {
+
+	if err := CheckUserType(c, "ADMIN"); err != nil {
+		return nil, err
+	}
+	return repository.GetAllUsers()
 }
