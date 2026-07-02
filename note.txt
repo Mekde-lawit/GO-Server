@@ -185,3 +185,53 @@ This is called a stateless check. Instead of looking up the database, you trust 
 Pros: Blazing fast. The middleware only decrypts and validates the cryptographically signed string. No database hits, no network latency.
 
 Cons: Stale data. If a user's role changes from "user" to "admin", or if they are banned, they will remain authenticated with their old privileges until their JWT expires (which could be hours or days later).
+
+
+
+///////////////////////////////////////////
+
+package configs
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+	"sync"
+	"time"
+
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
+)
+
+var (
+	Client   *mongo.Client
+	once     sync.Once
+)
+
+func DBinstance() *mongo.Client {
+	once.Do(func() {
+		mongoDB := os.Getenv("MONGODB_URL")
+		fmt.Println("MongoDB URL:", mongoDB)
+
+		client, err := mongo.Connect(options.Client().ApplyURI(mongoDB))
+		if err != nil {
+			log.Fatal("Error: ", err)
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		if err = client.Ping(ctx, nil); err != nil {
+			log.Fatal("Error: ", err)
+		}
+
+		fmt.Println("Connected to Mongodb!")
+		Client = client
+	})
+	return Client
+}
+
+func OpenCollection(collectionName string) *mongo.Collection {
+	return DBinstance().Database("goDB").Collection(collectionName)
+}
