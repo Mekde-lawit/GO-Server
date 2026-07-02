@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"jwt/configs"
-	routes "jwt/routes"
+	router "jwt/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,9 +20,9 @@ func main() {
 
 	app := gin.Default() // create new gin router with default middleware (logger and recovery)
 
-	// handle multiple routes 
-	routes.AuthRoutes(app)
-	routes.UserRoutes(app)
-	
+	// handle multiple routes
+	router.AuthRoutes(app)
+	router.UserRoutes(app)
+
 	app.Run(":" + port)
 }

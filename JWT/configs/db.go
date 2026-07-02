@@ -12,8 +12,10 @@ import (
 )
 
 func DBinstance() *mongo.Client {
+
+	InitEnv()
+
 	mongoDB := os.Getenv("MONGODB_URL")
-	fmt.Println("MongoDB URL:", mongoDB)
 
 	client, err := mongo.Connect(options.Client().ApplyURI(mongoDB))
 	if err != nil {
@@ -33,7 +35,7 @@ func DBinstance() *mongo.Client {
 
 var Client *mongo.Client = DBinstance()
 
-func OpenCollection(collectionName string) *mongo.Collection{
+func OpenCollection(collectionName string) *mongo.Collection {
 	var collection *mongo.Collection = Client.Database("goDB").Collection(collectionName)
 	return collection
 }

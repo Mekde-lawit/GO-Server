@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"golang.org/x/crypto/bcrypt"
 )
+
 var validate = validator.New()
 
 // hashes the user password
@@ -20,7 +21,7 @@ func hashPassword(password string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-  return string(hashedPassword), nil
+	return string(hashedPassword), nil
 }
 
 // checks if the provided password matches
@@ -30,7 +31,6 @@ func verifyPassword(password string, hashedPassword string) error {
 		[]byte(password),
 	)
 }
-
 
 func CreateUser(user models.User) (*models.User, error) {
 	if err := validate.Struct(user); err != nil {
@@ -45,16 +45,16 @@ func CreateUser(user models.User) (*models.User, error) {
 		return nil, errors.New("email already exists")
 	}
 	// Hash password
-	hashedPassword, err := hashPassword(*user.Password); 
+	hashedPassword, err := hashPassword(*user.Password)
 	if err != nil {
 		return nil, err
 	}
 	user.Password = &hashedPassword
-	user.Created_At, err = time.Parse(time.Now().Format(time.RFC3339), time.RFC3339)
+	user.Created_At, err = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 	if err != nil {
 		return nil, err
 	}
-	user.Updated_At, err = time.Parse(time.Now().Format(time.RFC3339), time.RFC3339)
+	user.Updated_At, err = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 	if err != nil {
 		return nil, err
 	}
@@ -73,24 +73,24 @@ func CreateUser(user models.User) (*models.User, error) {
 	}
 
 	return result, nil
- 
+
 }
 
 func LoginUser(loginRequest models.LoginRequest) (*models.User, error) {
 	if err := validate.Struct(loginRequest); err != nil {
 		return nil, err
 	}
-user, err := repository.GetUserByEmail(loginRequest.Email)
-if err != nil {
-	return nil, err
-}
+	user, err := repository.GetUserByEmail(loginRequest.Email)
+	if err != nil {
+		return nil, err
+	}
 
-verifypass := verifyPassword(*user.Password, loginRequest.Password)
-if verifypass != nil {
-	return nil, errors.New("invalid password")
-}
+	verifypass := verifyPassword(*user.Password, loginRequest.Password)
+	if verifypass != nil {
+		return nil, errors.New("invalid password")
+	}
 
-token, refreshToken, err := utils.GenerateAllTokens(*user.Email, *user.First_Name, *user.Last_Name, user.User_Type, user.User_ID)
+	token, refreshToken, err := utils.GenerateAllTokens(*user.Email, *user.First_Name, *user.Last_Name, user.User_Type, user.User_ID)
 	if err != nil {
 		return nil, err
 	}
@@ -98,11 +98,10 @@ token, refreshToken, err := utils.GenerateAllTokens(*user.Email, *user.First_Nam
 	user.Refresh_Token = &refreshToken
 
 	err = repository.UpdateAllToken(
-    user.User_ID,
-	token,
-    refreshToken,
-)
+		user.User_ID,
+		token,
+		refreshToken,
+	)
 
-return user, nil
+	return user, nil
 }
-	
